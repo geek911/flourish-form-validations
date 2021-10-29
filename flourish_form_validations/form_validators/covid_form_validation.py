@@ -39,14 +39,6 @@ class Covid9FormValidator(FormValidator):
         for field in single_selection_fields:
             self.m2m_single_selection_if('no_symptoms', m2m_field=field)
 
-        self._validations_if_fully_vaccinated()
-
-        self._validations_if_partially_vaccinated()
-
-        return super(Covid9FormValidator, self).clean()
-
-    def _validations_if_fully_vaccinated(self):
-
         if self.cleaned_data.get('fully_vaccinated') == YES:
             required_fields = ['vaccination_type', 'first_dose', 'second_dose']
             for field in required_fields:
@@ -66,12 +58,7 @@ class Covid9FormValidator(FormValidator):
                     'second_dose': 'Dates cannot be equal',
                 })
 
-        elif self.cleaned_data.get('fully_vaccinated') == NO:
-            self._validate_not_required()
-
-    def _validations_if_partially_vaccinated(self):
-
-        if self.cleaned_data.get('fully_vaccinated') == 'partially_jab':
+        elif self.cleaned_data.get('fully_vaccinated') == 'partially_jab':
 
             required_fields = ['vaccination_type', 'first_dose']
 
@@ -87,12 +74,11 @@ class Covid9FormValidator(FormValidator):
                                  field='fully_vaccinated',
                                  field_required='second_dose')
 
-        elif self.cleaned_data.get('fully_vaccinated') == NO:
-            self._validate_not_required()
+        else:
+            not_required_fields = ['vaccination_type', 'other_vaccination_type', 'first_dose', 'second_dose']
+            for field in not_required_fields:
+                self.not_required_if(NO,
+                                     field='fully_vaccinated',
+                                     field_required=field)
 
-    def _validate_not_required(self):
-        not_required_fields = ['vaccination_type', 'other_vaccination_type', 'first_dose', 'second_dose']
-        for field in not_required_fields:
-            self.not_required_if(NO,
-                                 field='fully_vaccinated',
-                                 field_required=field)
+        return super(Covid9FormValidator, self).clean()
