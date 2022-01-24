@@ -63,38 +63,39 @@ class AntenatalEnrollmentFormValidator(CRFFormValidator,
         if (self.cleaned_data.get('week32_test') == NO and
                 self.cleaned_data.get('current_hiv_status') in [POS, NEG, IND]):
             message = {'current_hiv_status':
-                       'Participant has never tested for HIV. Current HIV '
-                       'status is unknown.'}
+                           'Participant has never tested for HIV. Current HIV '
+                           'status is unknown.'}
             self._errors.update(message)
             raise ValidationError(message)
         elif (self.cleaned_data.get('week32_test') == YES and
               self.cleaned_data.get('current_hiv_status') not in
               [POS, NEG, IND, DWTA]):
             message = {'current_hiv_status':
-                       'Participant has previously tested for HIV. Current '
-                       'HIV status cannot be unknown or never tested.'}
+                           'Participant has previously tested for HIV. Current '
+                           'HIV status cannot be unknown or never tested.'}
             self._errors.update(message)
             raise ValidationError(message)
 
     def validate_last_period_date(self, cleaned_data=None):
         last_period_date = cleaned_data.get('last_period_date')
         report_datetime = cleaned_data.get('report_datetime')
+
         if last_period_date and (
-                last_period_date > (
-                    report_datetime.date() - relativedelta(weeks=16))):
+                last_period_date < (
+                report_datetime.date() - relativedelta(weeks=16))):
             message = {'last_period_date':
-                       'LMP cannot be less than 16 weeks of report datetime. '
-                       f'Got LMP as {last_period_date} and report datetime as '
-                       f'{report_datetime}'}
+                           'LMP cannot be less than 16 weeks of report datetime. '
+                           f'Got LMP as {last_period_date} and report datetime as '
+                           f'{report_datetime}'}
             self._errors.update(message)
             raise ValidationError(message)
 
         elif last_period_date and (
-                last_period_date <= (
-                    report_datetime.date() - relativedelta(weeks=31))):
+                last_period_date > (
+                    report_datetime.date() - relativedelta(weeks=30))):
             message = {'last_period_date':
-                       'LMP cannot be more than 30 weeks of report datetime. '
-                       f'Got LMP as {last_period_date} and report datetime as '
-                       f'{report_datetime}'}
+                           'LMP cannot be more than 30 weeks of report datetime. '
+                           f'Got LMP as {last_period_date} and report datetime as '
+                           f'{report_datetime}'}
             self._errors.update(message)
             raise ValidationError(message)
